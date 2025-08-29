@@ -1,0 +1,39 @@
+digraph G {
+  rankdir = "RL";
+  fontname="sans-serif";
+
+  # Default node style
+  node [shape=rect, fontname="sans-serif", style=filled, fontsize=12];
+
+  # VPC
+  "aws_vpc.vpc-01" [label="VPC\naws_vpc.vpc-01", shape=folder, fillcolor=lightblue, color=blue];
+
+  # Subnets
+  "aws_subnet.public_subnet" [label="Public Subnet\naws_subnet.public_subnet", fillcolor=lightgoldenrod, color=orange];
+  "aws_subnet.private_subnet" [label="Private Subnet\naws_subnet.private_subnet", fillcolor=lightgreen, color=darkgreen];
+
+  # Route tables
+  "aws_route_table.public_rt" [label="Public RT\naws_route_table.public_rt", shape=component, fillcolor=white, color=orange];
+  "aws_default_route_table.private_rt" [label="Private RT (default)\naws_default_route_table.private_rt", shape=component, fillcolor=white, color=green];
+  "aws_route_table_association.public_rt_assoc" [label="RT Association\naws_route_table_association.public_rt_assoc", shape=note, fillcolor=lightgrey];
+
+  # Internet Gateway
+  "aws_internet_gateway.igw" [label="Internet Gateway\naws_internet_gateway.igw", shape=oval, fillcolor=lightcyan, color=blue];
+
+  # NAT Gateway + EIP
+  "aws_nat_gateway.nat_gw" [label="NAT Gateway\naws_nat_gateway.nat_gw", shape=octagon, fillcolor=lightpink, color=red];
+  "aws_eip.nat_eip" [label="Elastic IP\naws_eip.nat_eip", shape=ellipse, fillcolor=mistyrose, color=red];
+
+  # Relationships
+  "aws_default_route_table.private_rt" -> "aws_nat_gateway.nat_gw" [color=purple, penwidth=2, label="route → NAT"];
+  "aws_nat_gateway.nat_gw" -> "aws_eip.nat_eip" [color=red, label="uses EIP"];
+  "aws_nat_gateway.nat_gw" -> "aws_subnet.public_subnet" [color=orange, label="in public subnet"];
+
+  "aws_route_table.public_rt" -> "aws_internet_gateway.igw" [color=blue, label="route → IGW"];
+  "aws_route_table_association.public_rt_assoc" -> "aws_route_table.public_rt" [color=orange];
+  "aws_route_table_association.public_rt_assoc" -> "aws_subnet.public_subnet" [color=orange];
+
+  "aws_internet_gateway.igw" -> "aws_vpc.vpc-01" [color=blue];
+  "aws_subnet.private_subnet" -> "aws_vpc.vpc-01" [color=green];
+  "aws_subnet.public_subnet" -> "aws_vpc.vpc-01" [color=orange];
+}
